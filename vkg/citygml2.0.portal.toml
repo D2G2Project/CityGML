@@ -1,0 +1,149 @@
+title="CityGML Munich example queries"
+
+[defaultTab]
+query="""
+PREFIX : <http://cui.unige.ch/citygml/2.0/>
+PREFIX bldg: <http://www.opengis.net/citygml/building/2.0/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX lgdo: <http://linkedgeodata.org/ontology/>
+
+# Q1: Get all hotels over 30m high
+SELECT *
+{
+?linkage a :Association_CityGML_OSM .
+?linkage :matchesOSM ?osmentity .
+?linkage :matchesCityGML/:mapSurface/bldg:bounds ?citygmlentity .
+?osmlinkage a :Association_OSM_Class .
+?osmlinkage :hasosmid ?osmentity .
+?osmlinkage :hasosmclassid ?osmclassname .
+?osmclassname a lgdo:Hotel .
+    OPTIONAL { ?osmentity rdfs:label ?hotelname .}
+?citygmlentity bldg:measuredHeight ?buildingHeight .
+FILTER(?buildingHeight > 30) .
+?citygmlentity bldg:lod2Solid ?solid .
+?solid geo:asWKT ?address_geom .
+}
+"""
+
+[[tabGroups]]
+
+name="Examples"
+
+[[tabGroups.tabs]]
+
+name="Q1: Building addresses"
+query="""
+PREFIX : <https://github.com/yuzzfeng/D2G2/citygml#>
+PREFIX bldg: <http://www.opengis.net/citygml/building/2.0/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Q1: Find the addresses of buildings with height above 30 meters
+SELECT ?address_label
+{
+?building bldg:address ?address_id .
+?address_id rdfs:label ?address_label .
+?building bldg:measuredHeight ?buildingHeight .
+FILTER(?buildingHeight > 30) .
+}
+"""
+
+[[tabGroups.tabs]]
+
+name="Q2: Filter building addresses"
+query="""
+PREFIX : <https://github.com/yuzzfeng/D2G2/citygml#>
+PREFIX bldg: <http://www.opengis.net/citygml/building/2.0/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Q2: Find buildings with address "Stephansplatz"
+SELECT ?building ?address_label
+{
+?building bldg:address ?address_id .
+?address_id rdfs:label ?address_label .
+FILTER(CONTAINS(?address_label, "Stephansplatz")) .
+}
+"""
+
+[[tabGroups.tabs]]
+
+name="Q3: Buildings with most roof surfaces"
+query="""
+PREFIX : <https://github.com/yuzzfeng/D2G2/citygml#>
+PREFIX bldg: <http://www.opengis.net/citygml/building/2.0/>
+
+# Q3: Find 10 buildings that have the maximum number of roof surfaces
+SELECT ?building (COUNT(?surface) AS ?totalsurface)
+{
+?building a bldg:Building .
+?building bldg:boundedBy ?surface .
+?surface a bldg:RoofSurface .
+}
+GROUP BY ?building
+ORDER BY DESC(?totalsurface)
+LIMIT 10
+"""
+
+[[tabGroups.tabs]]
+
+name="Q4: Roof Surfaces"
+query="""
+PREFIX : <https://github.com/yuzzfeng/D2G2/citygml#>
+PREFIX bldg: <http://www.opengis.net/citygml/building/2.0/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+
+# Q4: Find roof surfaces of buildings over 30 meters
+SELECT ?citygmlGeom
+{
+?citygmlentity bldg:measuredHeight ?citygmlBuildingHeight .
+FILTER(?citygmlBuildingHeight > 30) .
+?citygmlentity bldg:boundedBy ?citygmlsurface .
+?citygmlsurface a bldg:RoofSurface .
+?citygmlsurface geo:hasGeometry/geo:asWKT ?citygmlGeom .
+BIND("chlorophyll,0.5" AS ?citygmlGeomColor) # Green
+}
+"""
+
+[[tabGroups.tabs]]
+
+name="Q5: 3D Geometries"
+query="""
+PREFIX : <https://github.com/yuzzfeng/D2G2/citygml#>
+PREFIX bldg: <http://www.opengis.net/citygml/building/2.0/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+
+# Q5: Find 3D geometries of buildings over 30 meters
+SELECT ?citygmlGeom
+{
+?citygmlentity bldg:measuredHeight ?citygmlBuildingHeight .
+FILTER(?citygmlBuildingHeight > 30) .
+?citygmlentity bldg:lod2Solid ?solid .
+?solid geo:asWKT ?citygmlGeom .
+BIND("chlorophyll,0.5" AS ?citygmlGeomColor) # Green
+}
+"""
+
+
+[[tabGroups.tabs]]
+name="Q6: Non flat roofs"
+query="""
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <https://github.com/yuzzfeng/D2G2/citygml#>
+PREFIX bldg: <http://www.opengis.net/citygml/building/2.0/>
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX lgdo: <http://linkedgeodata.org/ontology/>
+
+# Q6: Find buildings with non-flat roofs (searching for potential roofs for PV)
+SELECT ?citygmlGeom ?roofType
+{
+?citygmlentity bldg:roofSurface/bldg:roofType ?roofType .
+FILTER(?roofType != "flat roof") .
+?citygmlentity bldg:boundedBy ?citygmlsurface .
+# NOTE: We only care about RoofSurface
+?citygmlsurface a bldg:RoofSurface .
+?citygmlsurface geo:hasGeometry/geo:asWKT ?citygmlGeom .
+BIND("jet,0.8" AS ?citygmlGeomColor) # Red
+}
+"""
