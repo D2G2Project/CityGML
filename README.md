@@ -1,6 +1,11 @@
 ## D2G2 - CityGML Demo
+
+This demo provides a pipeline to query via [Ontop](https://github.com/ontop/ontop) CityGML data.
+
 ### CityGML Specifications
-**CityGML Ontology Used**: https://cui.unige.ch/isi/onto//citygml2.0.owl  
+**CityGML Ontology**: https://cui.unige.ch/isi/onto//citygml2.0.owl  
+&nbsp;&nbsp;&nbsp;&nbsp;<ins>*NOTE*</ins>: Ontology was modified from original, adding further classes
+on addresses (including xAL) and removing object properties with the same IRI as data properties.  
 **CityGML Version**: 2.0  
 **Software for RDBMS schema**: [3DCityDB](https://www.3dcitydb.org/3dcitydb/)
 
@@ -23,7 +28,7 @@ Different countries seem to encode different address information and hierarchies
 the respective national conventions.
 
 ## Instructions to run Ontop
-#### Execution
+### Execution
 Keep the ports 7778, 8082 free.
 
 Execute:
@@ -42,21 +47,21 @@ bash get-munich-citygml.sh
 ```
 It downloads files corresponding to the range provided for [EPSG:25832](https://epsg.io/25832) from the [Bavarian geoportal](https://geoportal.bayern.de/bayernatlas/?lang=de&topic=ba&bgLayer=atkis&catalogNodes=11&layers=WMS%7C%7COpendata_Auswahl_LoD2%7C%7Chttps:%2F%2Fgeoservices.bayern.de%2Fwms%2Fv1%2Fopendatagrid%7C%7Clod2%7C%7C1.1.1).
 
-### Instructions to run Apache Jena-Fuseki with triples materialized via Ontop
+## Instructions to run Apache Jena-Fuseki with triples materialized via Ontop
 Keep the ports 7778, 8082, 3030 free.
 
 The same pipeline as above is used with the exception being that
  ontop materialize is utilized instead of ontop endpoint. A file named 
 ```materialized-triples.ttl``` is generated via Ontop.
 
-#### Run Apache Jena-Fuseki without the GeoSPARQL extension
+### Run Apache Jena-Fuseki without the GeoSPARQL extension
 
 Execute:
 ```
 docker-compose -f docker-compose.jena-fuseki.yml up
 ```
 
-LIMITATION: The GeoSPARQL extension of Jena-Fuseki does not currently support
+&nbsp;&nbsp;&nbsp;&nbsp;<ins>*NOTE/LIMITATION*</ins> The GeoSPARQL extension of Jena-Fuseki does not currently support
 polyhedral surfaces as geometry datatypes. Therefore this demo does not make use the extension.
 
 #### Explore results

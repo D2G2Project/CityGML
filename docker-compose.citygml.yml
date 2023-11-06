@@ -53,7 +53,6 @@ services:
       - "7788:5432"
     volumes:
       - ./citygml-data:/data
-      - ./wait-for-it:/opt/wait-for-it
     depends_on:
       3dcitydb-db:
         condition: service_healthy
