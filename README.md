@@ -1,13 +1,22 @@
 ## D2G2 - CityGML Demo
-### Conventions
-CityGML Ontology Used: https://cui.unige.ch/isi/onto//citygml2.0.owl
-CityGML Version: 2.0
+### CityGML Specifications
+CityGML Ontology Used: https://cui.unige.ch/isi/onto//citygml2.0.owl  
+CityGML Version: 2.0  
+
+
+## Geographic area and data
+Region: Munich city center, Bavaria  
+CityGML data source: [Bavarian OPENDATA portal](https://geodaten.bayern.de/opengeodata/)  
+Default SRID: EPSG:25832  
+RoofTypes codes data source: ATKIS/ALKIS codes in [CityGMLWiki](EPSG:25832)  
+Address convention used: xAL: eXtensible Address Language by OASIS
 
 ### Mapping specificatons
-SRID restrictions: For visualization purposes everything mapped to SRID 4326. Yasgui visualization plugin used by Ontop can only operate on SRID 4326.
+SRID: All geometries are transformed to SRID EPSG:4326.
+The rationale is that Yasgui visualization plugin used by Ontop can only operate on SRID 4326.  
+In order to specify a different SRID, the second parameter of ST_SETSRID needs to be modified for each individual mapping.
 
-
-### Instructions to run Ontop
+## Instructions to run Ontop
 #### Execution
 Keep the ports 7778, 8082 free.
 
@@ -44,13 +53,7 @@ Execute:
 docker-compose -f docker-compose.jena-fuseki.yml up
 ```
 
-#### Run Apache Jena-Fuseki with the GeoSPARQL extension
-
-Execute:
-```
-docker-compose -f docker-compose.jena-fuseki-geosparql.yml up
-```
-NOTE: The GeoSPARQL extension of Jena-Fuseki does not currently support
+LIMITATION: The GeoSPARQL extension of Jena-Fuseki does not currently support
 polyhedral surfaces as geometry datatypes.
 
 #### Explore results
